@@ -7,14 +7,14 @@ library(terra)
 library(ggplot2)
 library(gridExtra)
 
-setwd("C:/Users/lindseybell/OneDrive - University of Arizona/Desktop/ARDO")
+setwd("C:/Users/lindseybell/OneDrive - University of Arizona/Desktop/TV_ARDO")
 
-pathtoARDOpts <- "./data/ARDO_pts/ARDO_pts_sf.shp"
-pathtoVegpts <- "./data/veg_pts/non_ARDO_veg.shp"
-pathtoGroundpts <- "./data/ground_pts/ground.shp"
+pathtoARDOpts <- "./data/object_points/ARDO_pts/ARDO_pts_sf.shp"
+pathtoVegpts <- "./data/object_points/veg_pts/non_ARDO_veg.shp"
+pathtoGroundpts <- "./data/object_points/ground_pts/ground.shp"
+pathtoNDVIrasters <- "./data/22_23_NDVI_rasters"
 
 #load in NDVI rasters and read as rasters
-pathtoNDVIrasters <- "./data/2020_NDVI_rasters"
 rast_files <- list.files(pathtoNDVIrasters, pattern = "NDVI_\\d{4}-\\d{2}-\\d{2}\\.tif$", full.names = T)
 #extract raster names
 raster_names <- list.files(pathtoNDVIrasters, pattern = "NDVI_\\d{4}-\\d{2}-\\d{2}\\.tif$", full.names = FALSE)
@@ -79,7 +79,7 @@ matrix_data <- veg_NDVI
 list_of_veg_dfs <- lapply(1:nrow(matrix_data), function(i) {
   create_dataframe(matrix_data[i, ], raster_dates[i])
 })
-for (i in seq_along(list_of_dfs)) {
+for (i in seq_along(list_of_veg_dfs)) {
   list_of_veg_dfs[[i]]$Date <- raster_dates
 }
 
@@ -87,7 +87,7 @@ matrix_data <- ground_NDVI
 list_of_ground_dfs <- lapply(1:nrow(matrix_data), function(i) {
   create_dataframe(matrix_data[i, ], raster_dates[i])
 })
-for (i in seq_along(list_of_dfs)) {
+for (i in seq_along(list_of_ground_dfs)) {
   list_of_ground_dfs[[i]]$Date <- raster_dates
 }
 
@@ -117,3 +117,24 @@ combined_plot <- ggplot() +
 print(combined_plot)
  
 
+#loop through each dataframe in the list to plot NDVI timeseries for each ARDO point
+combined_plot <- ggplot() +
+  # Plot ARDO NDVI
+  lapply(seq_along(list_of_ARDO_dfs), function(i) {
+    geom_point(data = list_of_ARDO_dfs[[i]], aes(x = Date, y = Value, color = "ARDO"))
+  }) +
+  # Plot vegetation NDVI
+  lapply(seq_along(list_of_veg_dfs), function(i) {
+    geom_point(data = list_of_veg_dfs[[i]], aes(x = Date, y = Value, color = "Vegetation"))
+  }) +
+  # Plot ground NDVI
+  lapply(seq_along(list_of_ground_dfs), function(i) {
+    geom_point(data = list_of_ground_dfs[[i]], aes(x = Date, y = Value, color = "Ground"))
+  }) +
+  labs(x = "Date", y = "NDVI", title = "Combined NDVI Time Series") +
+  scale_color_manual(name = "Legend", 
+                     values = c("ARDO" = "red", "Vegetation" = "blue", "Ground" = "wheat4"),
+                     labels = c("ARDO", "Ground", "Vegetation")) +
+  theme(legend.position = "bottom")
+
+print(combined_plot)
