@@ -4,15 +4,17 @@
 library(raster)
 library(sp)
 library(terra)
+library(dplyr)
 library(ggplot2)
 library(gridExtra)
 
 setwd("C:/Users/lindseybell/OneDrive - University of Arizona/Desktop/TV_ARDO")
 
-pathtoARDOpts <- "./data/object_points/ARDO_pts/ARDO_pts_sf.shp"
-pathtoVegpts <- "./data/object_points/veg_pts/non_ARDO_veg.shp"
-pathtoGroundpts <- "./data/object_points/ground_pts/ground.shp"
+pathtoARDOpts <- "./data/object_points/ARDO_pts/ARDO_pts.shp"
+pathtoVegpts <- "./data/object_points/veg_pts/veg_pts.shp"
+pathtoGroundpts <- "./data/object_points/ground_pts/gr_pts.shp"
 pathtoNDVIrasters <- "./data/22_23_NDVI_rasters"
+pathto60mAOI <- "./data/TV_AOI/TV_buff_60m.shp"
 
 #load in NDVI rasters and read as rasters
 rast_files <- list.files(pathtoNDVIrasters, pattern = "NDVI_\\d{4}-\\d{2}-\\d{2}\\.tif$", full.names = T)
@@ -22,9 +24,16 @@ raster_names <- list.files(pathtoNDVIrasters, pattern = "NDVI_\\d{4}-\\d{2}-\\d{
 rast_list <- lapply(rast_files, function(file) {
   raster(file)
 })
-# assign raster names
+#assign raster names
 names(rast_list) <- raster_names
 
+#crop list for 60m AOI
+#load n shapefile
+AOI_60m <- shapefile(pathto60mAOI)
+#convert area to a raster (with same res as rast_list; 1s inside, 0s outside)
+mask <- rasterize(AOI_60m, rast_list[[1]])
+#multiple raster values per pixel for each raster in the list (only values inside the polygon stay)
+rast_list_masked <- lapply(rast_list, function(x) x * mask)
 
 #===filtering out partial rasters=======
 #filter partial rasters out of the list of rasters by finding the majority extent
