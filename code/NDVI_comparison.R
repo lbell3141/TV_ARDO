@@ -10,8 +10,8 @@ library(gridExtra)
 
 setwd("C:/Users/lindseybell/OneDrive - University of Arizona/Desktop/TV_ARDO")
 
-pathtoARDOpts <- "./data/object_points/ARDO_pts/ARDO_pts.shp"
-pathtoVegpts <- "./data/object_points/veg_pts/veg_pts.shp"
+pathtoARDOpts <- "./data/object_points/ARDO_pts/GE_ARDO_rept.shp"
+pathtoVegpts <- "./data/object_points/tree_pts_GE.shp"
 pathtoGroundpts <- "./data/object_points/ground_pts/gr_pts.shp"
 pathtoNDVIrasters <- "./data/22_23_NDVI_rasters"
 pathto60mAOI <- "./data/TV_AOI/TV_buff_60m.shp"
