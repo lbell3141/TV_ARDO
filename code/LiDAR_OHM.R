@@ -31,8 +31,5 @@ dsm = grid_canopy(las = las_veg, res = 0.1, algorithm = dsmtin())
 #the difference between the elevation of the ground and the elevation of the canopy will return a raster with the heights of the canopy
 chm <- dsm - dem
 
-
-
 # write raster from point subsets
-writeRaster(ground_rast,filename = file.path(pathtoRasterOutputs,"ground"), format="GTiff",overwrite=TRUE)
-writeRaster(full_rast,filename = file.path(pathtoRasterOutputs,"full"), format="GTiff",overwrite=TRUE)
+writeRaster(chm,filename = file.path(pathtoRasterOutputs,"chm"), format="GTiff",overwrite=TRUE)
