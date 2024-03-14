@@ -8,6 +8,7 @@ library("raster")
 
 pathtoPointCloud <- "./data/LiDAR/points.laz"
 pathtoRasterOutputs <- "./data/LiDAR"
+pathto60mAOI <- "./data/TV_AOI/TV_buff_60m.shp"
   
 #read in point cloud
 las <- readLAS(pathtoPointCloud)
@@ -31,5 +32,20 @@ dsm = grid_canopy(las = las_veg, res = 0.1, algorithm = dsmtin())
 #the difference between the elevation of the ground and the elevation of the canopy will return a raster with the heights of the canopy
 chm <- dsm - dem
 
+#decrease raster resolution to 1m
+#can also just change res parameter in above grid_ functions
+chm <- aggregate(chm, 10)
+
 # write raster from point subsets
-writeRaster(chm,filename = file.path(pathtoRasterOutputs,"chm"), format="GTiff",overwrite=TRUE)
+#writeRaster(chm,filename = file.path(pathtoRasterOutputs,"chm"), format="GTiff",overwrite=TRUE)
+
+#mask raster to AOI
+AOI_60m <- shapefile(pathto60mAOI)
+mask <- rasterize(AOI_60m, chm)
+chm_masked <- chm * mask
+
+#filter chm to only include height values of ARDO
+chm_filtered <- chm_masked
+chm_filtered[chm_filtered <= 1.8 | chm_filtered >= 5.5] <- NA
+
+#writeRaster(chm_filtered,filename = file.path(pathtoRasterOutputs,"chm_filtered"), format="GTiff",overwrite=TRUE)
