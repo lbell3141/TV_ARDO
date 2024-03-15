@@ -46,6 +46,6 @@ chm_masked <- chm * mask
 
 #filter chm to only include height values of ARDO
 chm_filtered <- chm_masked
-chm_filtered[chm_filtered <= 1.8 | chm_filtered >= 5.5] <- NA
+chm_filtered[chm_filtered <= 1.5 | chm_filtered >= 6] <- NA
 
 #writeRaster(chm_filtered,filename = file.path(pathtoRasterOutputs,"chm_filtered"), format="GTiff",overwrite=TRUE)
