@@ -4,12 +4,12 @@
 library(terra)
 
 pathtoCHMrast <- "./data/LiDAR/chm.tif"
-pathtoDistRast <- "./data/TV_Banks/TV_Banks.tif"
-pathtoNDVIstack <- "./data/NDVI_stack.tif"
-pathtoNDVIstack <- "./data/PlanetScopeScenes/Jun23_Oct23/PSScene/20230602_171215_24_24c3_3B_AnalyticMS_SR_clip.tif"
+pathtoDistRast <- "./data/TV_Banks/bank_dist.tif"
+pathtoNDVIstack <- "./data/2020_NDVI_stack.tif"
 
-pathtoARDOpts <- "./data/object_points/ARDO_pts/ARDO_pts.shp"
-pathtoOtherpts <- "./data/object_points/Other_pts/otherpts.shp"
+pathtoARDOpts <- "./data/object_points/ARDO_pts/GE_ARDO_rept.shp"
+pathtoVegpts <- "./data/object_points/veg_pts/test_canopy.shp"
+pathtoGroundpts <- "./data/object_points/ground_pts/gr_pts.shp"
 pathtoCSVoutput <- "./data/model/train_test_data.csv"
 
 height_rast <- rast(pathtoCHMrast)
@@ -32,19 +32,23 @@ merged_df <- merge(merged_df, NDVI_df, by = c("x", "y"))
 #===============================================================================
 #extract training/testing points and build dataframe
 
-ARDOpts <- vect(pathtoARDOpts)
-Otherpts <- vect(pathtoOtherpts)
+ARDO_pts <- vect(pathtoARDOpts)
+veg_pts <- vect(pathtoVegpts)
+ground_pts <- vect(pathtoGroundpts)
 
 full_stack <- rast(list(height_rast, dist_rast, NDVI_rast_stack))
 
-ARDO_stack_vals <- extract(full_stack, ARDOpts)
+ARDO_stack_vals <- extract(full_stack, ARDO_pts)
 ARDO_stack_vals$Group <- "ARDO"
 ARDO_stack_vals$present <- 1
-Other_stack_vals <- extract(full_stack, Otherpts)
-Other_stack_vals$Group <- "Other"
-Other_stack_vals$present <- 0
+Veg_stack_vals <- extract(full_stack, veg_pts)
+Veg_stack_vals$Group <- "Veg"
+Veg_stack_vals$present <- 0
+Ground_stack_vals <- extract(full_stack, ground_pts)
+Ground_stack_vals$Group <- "Gr"
+Ground_stack_vals$present <- 0
 
-combined_df <- rbind(ARDO_stack_vals, Other_stack_vals)
+combined_df <- rbind(ARDO_stack_vals, Veg_stack_vals, Ground_stack_vals)
 combined_df$OID <- seq_len(nrow(combined_df))
 
 end_of_NDVI_cols <- ncol(combined_df) - 3
