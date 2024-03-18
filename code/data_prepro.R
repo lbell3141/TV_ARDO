@@ -51,7 +51,13 @@ Ground_stack_vals$present <- 0
 combined_df <- rbind(ARDO_stack_vals, Veg_stack_vals, Ground_stack_vals)
 combined_df$OID <- seq_len(nrow(combined_df))
 
+OID_col <- ncol(combined_df)
+pres_col <- ncol(combined_df) - 1
+Group_col <- ncol(combined_df) - 2
 end_of_NDVI_cols <- ncol(combined_df) - 3
-combined_df <- combined_df[, c(10,1,8,9,2,3:end_of_NDVI_cols)]
+combined_df <- combined_df[, c(OID_col,1, Group_col,pres_col,2,3:end_of_NDVI_cols)]
+
+colnames(combined_df)[5] <- "height"
+colnames(combined_df)[6] <- "dist_bank"
 
 write.csv(combined_df, pathtoCSVoutput, row.names = F)
