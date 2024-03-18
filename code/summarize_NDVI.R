@@ -8,7 +8,7 @@ library(terra)
 library(dplyr)
 library(ggplot2)
 
-#vertically combining dfs (don't merge by date- different lengths when combinig groups)
+#vertically combining dfs (don't merge by date- different lengths when combining groups)
 ARDO_combined <- list_of_ARDO_dfs[[1]]
 for (i in 2:length(list_of_ARDO_dfs)) {
   ARDO_combined <- rbind(ARDO_combined, list_of_ARDO_dfs[[i]])
