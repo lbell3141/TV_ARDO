@@ -1,4 +1,4 @@
-#calculating distance from bank paramter 
+#calculating distance from bank parameter 
 #calculated for the position of each cell, so is constant for each year
 #shapefile includes two lines running along the north most and south most edges of the river
 
@@ -9,15 +9,19 @@ library(raster)
 
 pathtoBankShapefile <- "./data/TV_Banks/TV_Banks.shp"
 pathtoReferenceRast <- "./data/LiDAR/chm.tif"
-pathtoRastOutput <- "./data/TV_Banks"
+pathtoRastOutput <- "./data/TV_Banks/bank_dist.tif"
 
+<<<<<<< HEAD
 #load in riverbank lines and raster with reference crs and positions
 banks <- shapefile(pathtoBankShapefile)
+=======
+centerline <- vect(pathtoBankShapefile)
+>>>>>>> 4bad8488a8c65f08a5505117ba9fb0c599b2dda9
 ref_rast <- rast(pathtoReferenceRast)
 
-#create empty rast to store distance values in
-dist_rast <- rast(ref_rast)
+dist_rast <- distance(ref_rast, centerline)
 
+<<<<<<< HEAD
 dd <- gDistance(banks, as(ref_rast, "SpatialPoints"), byid = TRUE)
 
 
@@ -60,3 +64,6 @@ dd <- gDistance(banks, as(ref_rast, "SpatialPoints"), byid = TRUE)
 
 
 spatial_lines <- SpatialLines(list(Lines(list(Line(coordinates(shapefile))), ID = "1")))
+=======
+writeRaster(dist_rast,pathtoRastOutput,overwrite=TRUE)
+>>>>>>> 4bad8488a8c65f08a5505117ba9fb0c599b2dda9

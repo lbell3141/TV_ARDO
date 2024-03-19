@@ -11,11 +11,11 @@ library(gridExtra)
 setwd("C:/Users/lindseybell/OneDrive - University of Arizona/Desktop/TV_ARDO")
 
 pathtoARDOpts <- "./data/object_points/ARDO_pts/GE_ARDO_rept.shp"
-pathtoVegpts <- "./data/object_points/veg_pts/L_W_veg.shp"
+pathtoVegpts <- "./data/object_points/veg_pts/test_canopy.shp"
 pathtoGroundpts <- "./data/object_points/ground_pts/gr_pts.shp"
-pathtoNDVIrasters <- "./data/22_23_NDVI_rasters"
+pathtoNDVIrasters <- "./data/2020_NDVI_rasters"
 pathto60mAOI <- "./data/TV_AOI/TV_buff_60m.shp"
-pathtoNDVIstackoutput <- "./data"
+pathtoNDVIstackoutput <- "./data/2020_NDVI_stack.tif"
 
 #load in NDVI rasters and read as rasters
 rast_files <- list.files(pathtoNDVIrasters, pattern = "NDVI_\\d{4}-\\d{2}-\\d{2}\\.tif$", full.names = T)
@@ -52,7 +52,7 @@ raster_names <- names(filtered_rasters)
 raster_dates <- as.Date(gsub("NDVI_(\\d{4}-\\d{2}-\\d{2})\\.tif", "\\1", raster_names), format = "%Y-%m-%d")
 
 NDVI_stack_raster <- rast(NDVI_stack)
-#writeRaster(NDVI_stack_raster, filename = file.path(pathtoNDVIstackoutput, "NDVI_stack"), format="GTiff",overwrite=TRUE)
+#writeRaster(NDVI_stack_raster, pathtoNDVIstackoutput, overwrite=TRUE)
 
 #===pulling data per detection pixel===
 #now using ARDO, veg, and ground shapefiles 
