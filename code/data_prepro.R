@@ -10,7 +10,7 @@ pathtoNDVIstack <- "./data/2020_NDVI_stack.tif"
 pathtoARDOpts <- "./data/object_points/ARDO_pts/GE_ARDO_rept.shp"
 pathtoVegpts <- "./data/object_points/veg_pts/test_canopy.shp"
 pathtoGroundpts <- "./data/object_points/ground_pts/gr_pts.shp"
-pathtoCSVoutput <- "./data/model/train_test_data.csv"
+pathtoCSVoutput <- "./data/model/train_test_data_full_AOI.csv"
 
 height_rast <- rast(pathtoCHMrast)
 dist_rast <- rast(pathtoDistRast)
@@ -28,6 +28,21 @@ NDVI_df <- as.data.frame(NDVI_rast_stack, xy = T)
 #merge data frames by xy positions (need to have same CRS!)
 merged_df <- merge(heights_df, dist_df, by = c("x", "y"))
 merged_df <- merge(merged_df, NDVI_df, by = c("x", "y"))
+
+merged_df$present <- NA
+merged_df$OID <- seq_len(nrow(merged_df))
+OID_col <- ncol(merged_df)
+pres_col <- ncol(merged_df) - 1
+end_of_NDVI_cols <- ncol(combined_df) - 2
+merged_df <- merged_df[, c(OID_col,1, 2,pres_col,3:end_of_NDVI_cols)]
+
+colnames(merged_df)[5] <- "height"
+colnames(merged_df)[6] <- "dist_bank"
+
+merged_df <- replace(merged_df, is.na(merged_df), -9999)
+
+write.csv(merged_df, pathtoCSVoutput, row.names = F)
+
 
 #===============================================================================
 #extract training/testing points and build dataframe
@@ -59,5 +74,7 @@ combined_df <- combined_df[, c(OID_col,1, Group_col,pres_col,2,3:end_of_NDVI_col
 
 colnames(combined_df)[5] <- "height"
 colnames(combined_df)[6] <- "dist_bank"
+
+combined_df <- replace(combined_df, is.na(combined_df), -9999)
 
 write.csv(combined_df, pathtoCSVoutput, row.names = F)
