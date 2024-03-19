@@ -11,17 +11,15 @@ pathtoBankShapefile <- "./data/TV_Banks/TV_Banks.shp"
 pathtoReferenceRast <- "./data/LiDAR/chm.tif"
 pathtoRastOutput <- "./data/TV_Banks/bank_dist.tif"
 
-<<<<<<< HEAD
 #load in riverbank lines and raster with reference crs and positions
 banks <- shapefile(pathtoBankShapefile)
-=======
+
 centerline <- vect(pathtoBankShapefile)
->>>>>>> 4bad8488a8c65f08a5505117ba9fb0c599b2dda9
+
 ref_rast <- rast(pathtoReferenceRast)
 
 dist_rast <- distance(ref_rast, centerline)
 
-<<<<<<< HEAD
 dd <- gDistance(banks, as(ref_rast, "SpatialPoints"), byid = TRUE)
 
 
