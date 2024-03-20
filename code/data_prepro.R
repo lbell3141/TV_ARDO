@@ -4,7 +4,7 @@
 library(terra)
 
 pathtoCHMrast <- "./data/LiDAR/chm.tif"
-pathtoDistRast <- "./data/TV_Banks/bank_dist.tif"
+pathtoDistRast <- "./data/TV_Banks/bed_dist.tif"
 pathtoNDVIstack <- "./data/2020_NDVI_stack.tif"
 
 pathtoARDOpts <- "./data/object_points/ARDO_pts/GE_ARDO_rept.shp"
@@ -33,7 +33,7 @@ merged_df$present <- NA
 merged_df$OID <- seq_len(nrow(merged_df))
 OID_col <- ncol(merged_df)
 pres_col <- ncol(merged_df) - 1
-end_of_NDVI_cols <- ncol(combined_df) - 2
+end_of_NDVI_cols <- ncol(merged_df) - 2
 merged_df <- merged_df[, c(OID_col,1, 2,pres_col,3:end_of_NDVI_cols)]
 
 colnames(merged_df)[5] <- "height"
