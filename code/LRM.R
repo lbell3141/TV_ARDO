@@ -4,7 +4,7 @@ library(readr)
 library(tidymodels)
 library(glmnet)
 
-pathtoPreparedData <- "./data/model/train_test_data.csv"
+pathtoPreparedData <- "./data/model/train_test_data_full_AOI.csv"
 pathtoModelOutput <- "./data/model/log_reg_model.rds"
 
 #load input data for regression model
@@ -16,7 +16,7 @@ LRM_data$present <- as.factor(LRM_data$present)
 #set seed to make random values reproducible 
 #split data and assign 80% to train and 20% to test
 set.seed(333)
-split_data <- initial_split(LRM_data, prop = 0.8, strata = present)
+split_data <- initial_split(LRM_data, prop = 0.2, strata = present)
 train_data <- split_data %>%
   training()
 test_data <- split_data %>%
@@ -63,6 +63,7 @@ saveRDS(model, file = pathtoModelOutput)
 #==========================================================
 #==============hyperparamter tuning========================
 #==========================================================
+#sample
 # Define the logistic regression model with penalty and mixture hyperparameters
 log_reg <- logistic_reg(mixture = tune(), penalty = tune(), engine = "glmnet")
 

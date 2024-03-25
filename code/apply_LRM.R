@@ -2,6 +2,7 @@
 
 library(Matrix)
 library(raster)
+library(sp)
 
 pathtoModel <- "./data/model/log_reg_model.rds"
 pathtoPreparedData <- "./data/model/train_test_data_full_AOI.csv"
