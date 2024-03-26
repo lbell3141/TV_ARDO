@@ -3,8 +3,9 @@
 library(readr)
 library(tidymodels)
 library(glmnet)
+library(car)
 
-pathtoPreparedData <- "./data/model/train_test_data_full_AOI.csv"
+pathtoPreparedData <- "./data/model/train_test.csv"
 pathtoModelOutput <- "./data/model/log_reg_model.rds"
 
 #load input data for regression model
@@ -24,9 +25,8 @@ test_data <- split_data %>%
 
 #select variables for model
 model_vars <- names(LRM_data)[5:ncol(LRM_data)]
-model_vars <- model_vars[model_vars != "" & !is.na(model_vars)]
 model_formula <- paste("present ~ ", paste(model_vars, collapse = " + "), sep = "")
-model_formula <-as.formula(model_formula)
+model_formula <-formula(model_formula)
 
 #train model
 model <- logistic_reg(mixture = double(1), penalty = double(1))%>%
@@ -35,7 +35,7 @@ model <- logistic_reg(mixture = double(1), penalty = double(1))%>%
   fit(model_formula, data = train_data)
 
 #see variable summary from trained model
-tidy(model)
+var_summary <- tidy(model)
 
 #see training data predictions
 #class prediction returns Y/N; prob prediction returns a prob value for Y or N designation
@@ -59,7 +59,14 @@ conf_mat(results, truth = present,
   
 saveRDS(model, file = pathtoModelOutput)
 
+#===========Multicollinearity =============================
+model <- glm(model_formula, data = train_data, family = binomial)
 
+# Calculate VIF
+vif_values <- car::vif(model)
+
+# Display VIF values
+print(vif_values < 10)
 #==========================================================
 #==============hyperparamter tuning========================
 #==========================================================

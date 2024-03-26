@@ -2,8 +2,8 @@ library(terra)
 library(tidyverse)
 
 setwd("C:/Users/lindseybell/OneDrive - University of Arizona/Desktop/TV_ARDO")
-pathtoPlanetRasters <- "./data/PlanetScopeScenes/may22_may23"  # Folder with all PSScene data, including rasters
-pathtoNDVIrasters <- "./data/22_23_NDVI_rasters"
+pathtoPlanetRasters <- "./data/PlanetScopeScenes/dec20_Jul21/PSScene"  # Folder with all PSScene data, including rasters
+pathtoNDVIrasters <- "./data/Dec20_Jul21_NDVI_rasters"
 
 #create raster stack for planetscope scene rasters from jan 2020 to jan 2021
 #identify file pattern to pull only tif files from the Planet output folder

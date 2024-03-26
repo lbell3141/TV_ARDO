@@ -5,12 +5,12 @@ library(terra)
 
 pathtoCHMrast <- "./data/LiDAR/chm.tif"
 pathtoDistRast <- "./data/TV_Banks/bed_dist.tif"
-pathtoNDVIstack <- "./data/2020_NDVI_stack.tif"
+pathtoNDVIstack <- "./data/20_21_NDVI_stack.tif"
 
 pathtoARDOpts <- "./data/object_points/ARDO_pts/GE_ARDO_rept.shp"
 pathtoVegpts <- "./data/object_points/veg_pts/test_canopy.shp"
 pathtoGroundpts <- "./data/object_points/ground_pts/gr_pts.shp"
-pathtoCSVoutput <- "./data/model/train_test_data_full_AOI.csv"
+pathtoCSVoutput <- "./data/model/train_test_data.csv"
 
 height_rast <- rast(pathtoCHMrast)
 dist_rast <- rast(pathtoDistRast)

@@ -5,7 +5,7 @@ library(raster)
 library(sp)
 
 pathtoModel <- "./data/model/log_reg_model.rds"
-pathtoPreparedData <- "./data/model/train_test_data_full_AOI.csv"
+pathtoPreparedData <- "./data/model/full_AOI.csv"
 pathtoRastOutput <- "./data/model/outputs/test_output.tif"
 
 #load data
@@ -29,3 +29,4 @@ projection(output_rast) <- "+proj=utm +zone=12 +datum=WGS84 +units=m +no_defs"
 #save raster
 writeRaster(output_rast, pathtoRastOutput,overwrite=TRUE)
 
+output <- predict(log_reg_final, LRM_data)
