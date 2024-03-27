@@ -52,7 +52,7 @@ raster_names <- names(filtered_rasters)
 raster_dates <- as.Date(gsub("NDVI_(\\d{4}-\\d{2}-\\d{2})\\.tif", "\\1", raster_names), format = "%Y-%m-%d")
 
 NDVI_stack_raster <- rast(NDVI_stack)
-writeRaster(NDVI_stack_raster, pathtoNDVIstackoutput, overwrite=TRUE)
+#writeRaster(NDVI_stack_raster, pathtoNDVIstackoutput, overwrite=TRUE)
 
 #===pulling data per detection pixel===
 #now using ARDO, veg, and ground shapefiles 

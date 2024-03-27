@@ -4,9 +4,11 @@ library(readr)
 library(tidymodels)
 library(glmnet)
 library(car)
+library(caret)
+library(LogicReg)
 
 pathtoPreparedData <- "./data/model/train_test.csv"
-pathtoModelOutput <- "./data/model/log_reg_model.rds"
+pathtoModelOutput <- "./data/model/log_reg_model_kcfv.rds"
 
 #load input data for regression model
 #assign target variable to factor
@@ -27,6 +29,27 @@ test_data <- split_data %>%
 model_vars <- names(LRM_data)[5:ncol(LRM_data)]
 model_formula <- paste("present ~ ", paste(model_vars, collapse = " + "), sep = "")
 model_formula <-formula(model_formula)
+model_formula <- "present ~ height + dist_bank + NDVI_2021.05.09.tif"
+#===============================================================================
+#===============================================================================
+##Adding k-fold cross validation for training##
+#specify k fold; cv = cross validation; 10 = number of folds 
+index <- createDataPartition(LRM_data$present, p=.8, list=FALSE, times=1)
+train_df <- LRM_data[index,]
+test_df <- LRM_data[-index,]
+
+train_folds <- trainControl(method = "cv",
+                            number = 10,
+                            savePredictions = "all",
+                            classProbs = T)
+#make model with kfoldcv
+model_k <- train(model_formula, data = train_data,
+                 method = "glm",
+                 family = binomial,
+                 trControl = train_folds)
+model <- model_k
+#===============================================================================
+#===============================================================================
 
 #train model
 model <- logistic_reg(mixture = double(1), penalty = double(1))%>%
