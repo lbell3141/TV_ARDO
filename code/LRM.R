@@ -6,14 +6,29 @@ library(glmnet)
 library(car)
 library(caret)
 library(LogicReg)
+library(ggcorrplot)
+library(MASS)
 
-pathtoPreparedData <- "./data/model/train_test.csv"
+pathtoPreparedData <- "./data/model/rast_model/TT_data.csv"
 pathtoModelOutput <- "./data/model/log_reg_model_kcfv.rds"
 
 #load input data for regression model
 #assign target variable to factor
 LRM_data <- read.csv(pathtoPreparedData, header = T, sep = ",")
 LRM_data$present <- as.factor(LRM_data$present)
+
+
+
+corr_matrix <- cor(LRM_data[, 5:ncol(LRM_data)])
+corr_matrix <- cor(LRM_data[model_vars])
+# summarize the correlation matrix
+print(round(corr_matrix,2))
+# find attributes that are highly corrected (ideally >0.75)
+highlyCorrelated <- findCorrelation(corr_matrix, cutoff=0.75, names=TRUE)
+highlyCorrelated <- highlyCorrelated[!highlyCorrelated %in% c("NDVI_2021.02.09.tif", "NDVI_2021.04.10.tif", "NDVI_2021.06.01.tif")]
+ggcorrplot(corr_matrix, type = "lower", lab = TRUE)
+
+
 
 #split data into testing and training data
 #set seed to make random values reproducible 
@@ -25,11 +40,11 @@ train_data <- split_data %>%
 test_data <- split_data %>%
   testing()
 
-#select variables for model
+#select variables for model; remove variables with high correlation
 model_vars <- names(LRM_data)[5:ncol(LRM_data)]
+model_vars <- model_vars[!model_vars %in% highlyCorrelated]
 model_formula <- paste("present ~ ", paste(model_vars, collapse = " + "), sep = "")
 model_formula <-formula(model_formula)
-model_formula <- "present ~ height + dist_bank + NDVI_2021.05.09.tif"
 #===============================================================================
 #===============================================================================
 ##Adding k-fold cross validation for training##
@@ -50,6 +65,8 @@ model_k <- train(model_formula, data = train_data,
 model <- model_k
 #===============================================================================
 #===============================================================================
+model <- lm(model_formula, data = LRM_data)
+AIC(model)
 
 #train model
 model <- logistic_reg(mixture = double(1), penalty = double(1))%>%
@@ -138,4 +155,34 @@ conf_mat(results, truth = present,
 
 precision(results, truth = present,
           estimate = .pred_class)
+
+#=========================choosing vars
+# Initialize an empty vector to store selected variables
+selected_vars <- character()
+
+# Initialize a variable to store the current model AIC
+best_AIC <- Inf
+
+# Start with an empty formula
+current_formula <- formula("present ~ 1")
+
+# Loop through each variable
+for (var in setdiff(names(LRM_data), "present")) {  # Exclude the dependent variable
+  # Fit the model with the selected variables plus the current variable
+  temp_formula <- update(current_formula, paste(". ~ . + ", var))
+  model <- lm(temp_formula, data = LRM_data)
+  
+  # Check the AIC of the current model
+  current_AIC <- AIC(model)
+  
+  # If the AIC of the current model is lower than the best AIC so far, update selected variables and best AIC
+  if (current_AIC < best_AIC) {
+    selected_vars <- c(selected_vars, var)
+    best_AIC <- current_AIC
+    current_formula <- temp_formula
+  }
+}
+
+# Print the selected variables
+print(selected_vars)
 
