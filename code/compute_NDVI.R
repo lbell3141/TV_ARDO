@@ -2,8 +2,8 @@ library(terra)
 library(tidyverse)
 
 setwd("C:/Users/lindseybell/OneDrive - University of Arizona/Desktop/TV_ARDO")
-pathtoPlanetRasters <- "./data/PlanetScopeScenes/dec20_Jul21/PSScene"  # Folder with all PSScene data, including rasters
-pathtoNDVIrasters <- "./data/Dec20_Jul21_NDVI_rasters"
+pathtoPlanetRasters <- "./data/0.5Nov2020test_skysatcollect_pansharpened_udm2/SkySatCollect/20201120_183455_ss01_u0001_pansharpened_clip.tif"  # Folder with all PSScene data, including rasters
+pathtoNDVIrasters <- "./data/SkySat_Rast_Nov2020.tif"
 
 #create raster stack for planetscope scene rasters from jan 2020 to jan 2021
 #identify file pattern to pull only tif files from the Planet output folder
@@ -36,5 +36,8 @@ for (i in 1:nrow(PSStifs)){
 }
 
 
-
+#=====for single raster=========================================================
+skysat_rast <- rast(pathtoPlanetRasters)
+NDVIrast <- (skysat_rast[[4]] - skysat_rast[[3]]) / (skysat_rast[[4]] + skysat_rast[[3]])
+writeRaster(NDVIrast, pathtoNDVIrasters, overwrite = TRUE)
 
