@@ -4,9 +4,9 @@ library(Matrix)
 library(raster)
 library(sp)
 
-pathtoModel <- "./data/model/log_reg_model.rds"
-pathtoPreparedData <- "./data/model/full_AOI.csv"
-pathtoRastOutput <- "./data/model/outputs/test_output.tif"
+pathtoModel <- "./data/model/log_reg_model_rastmodel.rds"
+pathtoPreparedData <- "./data/model/rast_model/TT_data.csv"
+pathtoRastOutput <- "./data/model/outputs/test_output_rastmodel.tif"
 
 #load data
 model <- readRDS(file = pathtoModel)

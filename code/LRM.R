@@ -7,10 +7,10 @@ library(car)
 library(caret)
 library(LogicReg)
 library(ggcorrplot)
-library(MASS)
+library(leaps)
 
-pathtoPreparedData <- "./data/model/rast_model/TT_data.csv"
-pathtoModelOutput <- "./data/model/log_reg_model_kcfv.rds"
+pathtoPreparedData <- "./data/model/rast_model/TT_data_rastmodel.csv"
+pathtoModelOutput <- "./data/model/log_reg_model_rastmodel.rds"
 
 #load input data for regression model
 #assign target variable to factor
@@ -20,14 +20,26 @@ LRM_data$present <- as.factor(LRM_data$present)
 
 
 corr_matrix <- cor(LRM_data[, 5:ncol(LRM_data)])
-corr_matrix <- cor(LRM_data[model_vars])
-# summarize the correlation matrix
-print(round(corr_matrix,2))
+#corr_matrix <- cor(LRM_data[model_vars])
 # find attributes that are highly corrected (ideally >0.75)
-highlyCorrelated <- findCorrelation(corr_matrix, cutoff=0.75, names=TRUE)
-highlyCorrelated <- highlyCorrelated[!highlyCorrelated %in% c("NDVI_2021.02.09.tif", "NDVI_2021.04.10.tif", "NDVI_2021.06.01.tif")]
+highlyCorrelated <- findCorrelation(corr_matrix, cutoff=0.85, names=TRUE)
+#highlyCorrelated <- highlyCorrelated[!highlyCorrelated %in% c("NDVI_2021.02.09.tif", "NDVI_2021.04.10.tif", "NDVI_2021.06.01.tif")]
+
+#select variables for model; remove variables with high correlation
+model_vars <- names(LRM_data)[5:ncol(LRM_data)]
+model_vars <- model_vars[!model_vars %in% highlyCorrelated]
+model_formula <- paste("present ~ ", paste(model_vars, collapse = " + "), sep = "")
+model_formula <-formula(model_formula)
+
+corr_matrix <- cor(LRM_data[model_vars])
 ggcorrplot(corr_matrix, type = "lower", lab = TRUE)
 
+
+#get all combos of vars and determine best model
+all_combinations <- regsubsets(model_formula, data = LRM_data, nvmax = 60, really.big = TRUE)
+best_model <- which.min(summary(all_combinations)$bic)
+selected_vars <- names(coef(all_combinations, id = best_model))
+print(selected_vars)
 
 
 #split data into testing and training data
@@ -157,31 +169,15 @@ precision(results, truth = present,
           estimate = .pred_class)
 
 #=========================choosing vars
-# Initialize an empty vector to store selected variables
-selected_vars <- character()
 
-# Initialize a variable to store the current model AIC
-best_AIC <- Inf
+# Get all possible combinations of variables
+all_combinations <- regsubsets(model_formula, data = LRM_data, nvmax = 60, really.big = TRUE)
 
-# Start with an empty formula
-current_formula <- formula("present ~ 1")
+# Extract the model with the lowest AIC
+best_model <- which.min(summary(all_combinations)$bic)
 
-# Loop through each variable
-for (var in setdiff(names(LRM_data), "present")) {  # Exclude the dependent variable
-  # Fit the model with the selected variables plus the current variable
-  temp_formula <- update(current_formula, paste(". ~ . + ", var))
-  model <- lm(temp_formula, data = LRM_data)
-  
-  # Check the AIC of the current model
-  current_AIC <- AIC(model)
-  
-  # If the AIC of the current model is lower than the best AIC so far, update selected variables and best AIC
-  if (current_AIC < best_AIC) {
-    selected_vars <- c(selected_vars, var)
-    best_AIC <- current_AIC
-    current_formula <- temp_formula
-  }
-}
+# Get the variables in the best model
+selected_vars <- names(coef(all_combinations, id = best_model))
 
 # Print the selected variables
 print(selected_vars)
