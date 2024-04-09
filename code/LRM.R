@@ -22,14 +22,17 @@ LRM_data$present <- as.factor(LRM_data$present)
 corr_matrix <- cor(LRM_data[, 5:ncol(LRM_data)])
 #corr_matrix <- cor(LRM_data[model_vars])
 # find attributes that are highly corrected (ideally >0.75)
-highlyCorrelated <- findCorrelation(corr_matrix, cutoff=0.85, names=TRUE)
-#highlyCorrelated <- highlyCorrelated[!highlyCorrelated %in% c("NDVI_2021.02.09.tif", "NDVI_2021.04.10.tif", "NDVI_2021.06.01.tif")]
+highlyCorrelated <- findCorrelation(corr_matrix, cutoff=0.75, names=TRUE)
+highlyCorrelated <- highlyCorrelated[!highlyCorrelated %in% c( "NDVI_2021.04.10.tif", "NDVI_2021.06.01.tif")]
 
 #select variables for model; remove variables with high correlation
 model_vars <- names(LRM_data)[5:ncol(LRM_data)]
 model_vars <- model_vars[!model_vars %in% highlyCorrelated]
 model_formula <- paste("present ~ ", paste(model_vars, collapse = " + "), sep = "")
 model_formula <-formula(model_formula)
+
+model_formula <- "present ~ height + dist_bank + NDVI_2021.04.10.tif"
+model_formula <- formula(model_formula)
 
 corr_matrix <- cor(LRM_data[model_vars])
 ggcorrplot(corr_matrix, type = "lower", lab = TRUE)
