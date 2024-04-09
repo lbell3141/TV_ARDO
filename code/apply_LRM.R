@@ -5,7 +5,7 @@ library(raster)
 library(sp)
 
 pathtoModel <- "./data/model/log_reg_model_rastmodel.rds"
-pathtoPreparedData <- "./data/model/rast_model/TT_data.csv"
+pathtoPreparedData <- "./data/model/rast_model/full_data_rastmodel.csv"
 pathtoRastOutput <- "./data/model/outputs/test_output_rastmodel.tif"
 
 #load data

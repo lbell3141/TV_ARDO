@@ -58,7 +58,12 @@ colnames(merged_df)[6] <- "dist_bank"
 #merged_df <- merged_df[merged_df$NDVI >= 0.18, ]
 
 #adding NDVI difference
-merged_df$Jan_Apr_Dif <- merged_df$NDVI_2021.04.14.tif - merged_df$NDVI_2021.01.15.tif 
+merged_df$Jan_Feb_Dif <- merged_df$NDVI_2021.02.14.tif - merged_df$NDVI_2021.01.12.tif 
+merged_df$Feb_Mar_Dif <- merged_df$NDVI_2021.03.10.tif - merged_df$NDVI_2021.02.14.tif 
+merged_df$Mar_Apr_Dif <- merged_df$NDVI_2021.04.14.tif - merged_df$NDVI_2021.03.10.tif 
+merged_df$Apr_May_Dif <- merged_df$NDVI_2021.05.12.tif - merged_df$NDVI_2021.04.14.tif 
+
+
 
 write.csv(merged_df, pathtoCSVoutput, row.names = F)
 
@@ -101,6 +106,9 @@ colnames(merged_df)[6] <- "dist_bank"
 #height already filtered in OHM script
 #merged_df <- merged_df[merged_df$NDVI >= 0.18, ]
 
-merged_df$Jan_Apr_Dif <- merged_df$NDVI_2021.04.14.tif - merged_df$NDVI_2021.01.15.tif 
+merged_df$Jan_Feb_Dif <- merged_df$NDVI_2021.02.14.tif - merged_df$NDVI_2021.01.12.tif 
+merged_df$Feb_Mar_Dif <- merged_df$NDVI_2021.03.10.tif - merged_df$NDVI_2021.02.14.tif 
+merged_df$Mar_Apr_Dif <- merged_df$NDVI_2021.04.14.tif - merged_df$NDVI_2021.03.10.tif 
+merged_df$Apr_May_Dif <- merged_df$NDVI_2021.05.12.tif - merged_df$NDVI_2021.04.14.tif 
 
 write.csv(merged_df, pathtoCSVinputoutput, row.names = F)
