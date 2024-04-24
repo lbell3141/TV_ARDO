@@ -17,7 +17,49 @@ pathtoModelOutput <- "./data/model/log_reg_model_rastmodel.rds"
 LRM_data <- read.csv(pathtoPreparedData, header = T, sep = ",")
 LRM_data$present <- as.factor(LRM_data$present)
 
+model_formula <- "present ~ height + dist_bank + NDVI_2021.04.10.tif + NDVI_2021.06.01.tif + NDVI_2021.07.30.tif + NDVI_2021.05.15.tif"
+model_formula <- formula(model_formula)
 
+set.seed(333)
+split_data <- initial_split(LRM_data, prop = 0.2, strata = present)
+train_data <- split_data %>%
+  training()
+test_data <- split_data %>%
+  testing()
+
+#train model
+model <- logistic_reg(mixture = double(1), penalty = double(1))%>%
+  set_engine("glmnet") %>%
+  set_mode("classification") %>%
+  fit(model_formula, data = train_data)
+
+#see variable summary from trained model
+var_summary <- tidy(model)
+
+#see training data predictions
+#class prediction returns Y/N; prob prediction returns a prob value for Y or N designation
+pred_class <- predict(model,
+                      new_data = test_data,
+                      type = "class")
+pred_proba <- predict(model,
+                      new_data = test_data,
+                      type = "prob")
+results <- test_data %>%
+  select(present) %>%
+  bind_cols(pred_class, pred_proba)
+
+
+#evaluate model
+accuracy(results, truth = present, estimate = .pred_class)
+
+#confusion matrix
+conf_mat(results, truth = present,
+         estimate = .pred_class)  
+
+saveRDS(model, file = pathtoModelOutput)
+
+
+#===============================================================================
 
 #corr_matrix <- cor(LRM_data[, 5:ncol(LRM_data)])
 #corr_matrix <- cor(LRM_data[model_vars])
@@ -65,21 +107,28 @@ model_formula <-formula(model_formula)
 #===============================================================================
 #===============================================================================
 ##Adding k-fold cross validation for training##
-#specify k fold; cv = cross validation; 10 = number of folds 
-index <- createDataPartition(LRM_data$present, p=.8, list=FALSE, times=1)
-train_df <- LRM_data[index,]
-test_df <- LRM_data[-index,]
+#specify k fold; cv = cross validation; 10 = number of folds
+set.seed(123)
+
+#error from present level names... change values to "something meaningful"
+LRM_data$present <- ifelse(LRM_data$present == 0, "no", "yes")
+
+index <- createDataPartition(LRM_data$present, p = 0.8, list = FALSE, times = 1)
+train_df <- LRM_data[index, ]
+test_df <- LRM_data[-index, ]
 
 train_folds <- trainControl(method = "cv",
-                            number = 10,
+                            number = 15,
                             savePredictions = "all",
-                            classProbs = T)
-#make model with kfoldcv
-model_k <- train(model_formula, data = train_data,
+                            classProbs = TRUE)
+
+# Make model with k-fold cross-validation
+model_k <- train(present ~ height + dist_bank + NDVI_2021.04.10.tif + NDVI_2021.06.01.tif + NDVI_2021.07.30.tif + NDVI_2021.05.15.tif, 
+                 data = train_df,
                  method = "glm",
-                 family = binomial,
+                 family = binomial(),
                  trControl = train_folds)
-model <- model_k
+
 #===============================================================================
 #===============================================================================
 model <- lm(model_formula, data = LRM_data)
@@ -123,7 +172,7 @@ model <- glm(model_formula, data = train_data, family = binomial)
 vif_values <- car::vif(model)
 
 # Display VIF values
-print(vif_values < 10)
+print(vif_values < 8.5)
 #==========================================================
 #==============hyperparamter tuning========================
 #==========================================================
