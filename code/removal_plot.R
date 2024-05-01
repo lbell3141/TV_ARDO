@@ -1,7 +1,7 @@
 #create a plot showing removed ARDO ploygons within Tanque Verde AOI
 #ARDO polygons manually created in and exported from google earth pro 
 #determining removal based on changes in average July NDVI from 2021 to 2023 for each polygon
-#NDVI data calculated from Plant labs PSS product
+#NDVI data calculated from Planet labs PSS product
 #2021 raster stack made in NDVI_comparison.R
 
 library(sf)
@@ -11,7 +11,7 @@ library(ggplot2)
 pathtoshpfile <-  "./indiv_poly/indiv_poly-polygon.shp"
 pathto2021rasts <- "./data/20_21_NDVI_stack.tif"
 pathto2023rasts <- "./data/22_23_NDVI_stack.tif"
-pathtoHM21rast <- 
+pathtoHM20rast <- "./data/SkySat_Rast_Nov2020.tif"
 pathtoHM23rast <- 
 
 
@@ -57,19 +57,15 @@ comp_df$removed <- comp_df$difference < 0.1
 #compares Nov 2020 to Sept 2023
 
 #load data
-hm21 <- rast(pathtoHM21rast)
+hm20 <- rast(pathtoHM20rast)
 hm23 <- rast(pathtoHM23rast)
 
-hm_avg21_poly_vals <- extract(hm21, ARDO_sfcrs, fun = mean, na.rm = TRUE)
+hm_avg20_poly_vals <- extract(hm20, ARDO_sfcrs, fun = mean, na.rm = TRUE)
 hm_avg23_poly_vals <- extract(hm23, ARDO_sfcrs, fun = mean, na.rm = TRUE)
 
-
-hm_NDVI_21 <- hm_avg21_poly_vals[,43]
-hm_NDVI_21 <- as.data.frame(hm_NDVI_21)
-hm_NDVI_23 <- hm_avg23_poly_vals[,149]
-hm_NDVI_23 <- as.data.frame(hm_NDVI_23)
-hm_comp_df <- cbind(hm_NDVI_21, hm_NDVI_23)
-hm_comp_df$difference <- hm_omp_df$hm_NDVI_23 - hm_comp_df$hm_NDVI_21
+hm_comp_df <- cbind(hm_avg20_poly_vals, hm_avg23_poly_vals)
+hm_comp_df <- hm_comp_df  -  hm_comp_df[, 3]
+hm_comp_df$difference <- hm_omp_df$hm_NDVI_23 - hm_comp_df$hm_NDVI_20
 
 hm_plot_comp <- ggplot(data = hm_comp_df, mapping = aes(x = seq_along(hm_NDVI_21))) +
   geom_point(aes(y = hm_NDVI_21, color = "hm_NDVI_21")) +
