@@ -8,11 +8,11 @@ library(sf)
 library(terra)
 library(ggplot2)
 
-pathtoshpfile <-  "./indiv_poly/indiv_poly-polygon.shp"
+pathtoshpfile <-  "./data/indiv_poly/indiv_poly-polygon.shp"
 pathto2021rasts <- "./data/20_21_NDVI_stack.tif"
 pathto2023rasts <- "./data/22_23_NDVI_stack.tif"
-pathtoHM20rast <- "./data/SkySat_Rast_Nov2020.tif"
-pathtoHM23rast <- 
+pathtoHM20rast <- "./data/hm_NDVI_Nov20.tif"
+pathtoHM23rast <- "./data/hm_NDVI_Sept23.tif"
 
 
 #load data
@@ -40,6 +40,7 @@ comp_df$difference <- comp_df$NDVI_23 - comp_df$NDVI_21
 plot_comp <- ggplot(data = comp_df, mapping = aes(x = seq_along(NDVI_21))) +
   geom_point(aes(y = NDVI_21, color = "NDVI_21")) +
   geom_point(aes(y = NDVI_23, color = "NDVI_23")) +
+  scale_x_continuous(breaks = seq(0, 105, by = 2)) +
   labs(x = "Polygon #", y = "NDVI", color = "Variable") +
   scale_color_manual(values = c("NDVI_21" = "blue", "NDVI_23" = "red")) +
   theme_minimal()
@@ -47,6 +48,7 @@ plot_comp
 
 plot_dif <- ggplot(data = comp_df, mapping = aes(x = seq_along(NDVI_21))) +
   geom_point(aes(y = difference)) +
+  scale_x_continuous(breaks = seq(0, 105, by = 2)) +
   labs(x = "Polygon #", y = "Difference in NDVI (2023 - 2021)") +
   theme_minimal()
 plot_dif
@@ -64,20 +66,23 @@ hm_avg20_poly_vals <- extract(hm20, ARDO_sfcrs, fun = mean, na.rm = TRUE)
 hm_avg23_poly_vals <- extract(hm23, ARDO_sfcrs, fun = mean, na.rm = TRUE)
 
 hm_comp_df <- cbind(hm_avg20_poly_vals, hm_avg23_poly_vals)
-hm_comp_df <- hm_comp_df  -  hm_comp_df[, 3]
-hm_comp_df$difference <- hm_omp_df$hm_NDVI_23 - hm_comp_df$hm_NDVI_20
+colnames(hm_comp_df) <- c("ID", "NDVI_20", "ID2", "NDVI_23")
+hm_comp_df <- subset(hm_comp_df, select = -ID2)
+hm_comp_df$difference <- hm_comp_df$NDVI_23 - hm_comp_df$NDVI_20
 
-hm_plot_comp <- ggplot(data = hm_comp_df, mapping = aes(x = seq_along(hm_NDVI_21))) +
-  geom_point(aes(y = hm_NDVI_21, color = "hm_NDVI_21")) +
-  geom_point(aes(y = hm_NDVI_23, color = "hm_NDVI_23")) +
-  labs(x = "Polygon #", y = "NDVI", color = "Variable") +
-  scale_color_manual(values = c("NDVI_21" = "blue", "NDVI_23" = "red")) +
+hm_plot_comp <- ggplot(data = hm_comp_df, mapping = aes(x = ID)) +
+  geom_point(aes(y = NDVI_20, color = "NDVI_20")) +
+  geom_point(aes(y = NDVI_23, color = "NDVI_23")) +
+  labs(x = "Polygon #", y = "0.5m NDVI", color = "Variable") +
+  scale_x_continuous(breaks = seq(0, max(hm_comp_df$ID), by = 2)) +
+  scale_color_manual(values = c("NDVI_20" = "blue", "NDVI_23" = "red")) +
   theme_minimal()
 hm_plot_comp
 
-hm_plot_dif <- ggplot(data = hm_comp_df, mapping = aes(x = seq_along(hm_NDVI_21))) +
+hm_plot_dif <- ggplot(data = hm_comp_df, mapping = aes(x = ID)) +
   geom_point(aes(y = difference)) +
-  labs(x = "Polygon #", y = "Difference in NDVI (2023 - 2021)") +
+  scale_x_continuous(breaks = seq(0, max(hm_comp_df$ID), by = 2)) +
+  labs(x = "Polygon #", y = "Difference in 0.5m NDVI (2023 - 2021)") +
   theme_minimal()
 hm_plot_dif
 
